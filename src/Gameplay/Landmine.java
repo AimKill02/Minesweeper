@@ -24,7 +24,7 @@ abstract public class Landmine {
     }
     public void generateMines() {
         Random random = new Random();
-        while (true) {
+        while (mineSet.size() < maxMineCount) {
             synchronized (mineSet) {            
                 int row = random.nextInt(rows);
                 int col = random.nextInt(cols);
@@ -44,6 +44,7 @@ abstract public class Landmine {
         // Set a mine at the specified position
         if (row >= 0 && row < rows && col >= 0 && col < cols) {
             mineField[row][col] = MINE;
+            mineSet.add(row * cols + col);
         }
     }
 
