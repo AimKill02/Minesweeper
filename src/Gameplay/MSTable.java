@@ -7,4 +7,4 @@ public class MSTable {
     int[][] grids;
     HashMap<Integer, Boolean> flagged = new HashMap<>();
     HashMap<Integer, Boolean> revealed = new HashMap<>();
-}
+} // test
