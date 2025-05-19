@@ -263,4 +263,3 @@ public class Minesweeper {
         SwingUtilities.invokeLater(Minesweeper::new);
     }
 }
-
