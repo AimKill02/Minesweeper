@@ -107,7 +107,7 @@ public class Minesweeper {
         }
         return count;
     }
-    
+
     private void flag(int r, int c) {
         if (gameOver) return;
         Tile tile = main[r][c];
@@ -130,7 +130,7 @@ public class Minesweeper {
             grid.generateMines(r, c);
             calculateNeighbors();
             firstClick = false;
-            }
+        }
         Queue<int[]> queue = new LinkedList<>();
         queue.add(new int[]{r, c});
 
@@ -166,6 +166,36 @@ public class Minesweeper {
                 }
             }
         }
+        // Check for win after revealing
+        if (checkWin()) {
+            winGame();
+        }
+    }
+
+        private boolean checkWin() {
+        for (int r = 0; r < grid.getRows(); r++) {
+            for (int c = 0; c < grid.getCols(); c++) {
+                Tile tile = main[r][c];
+                if (!tile.isMine() && !tile.isRevealed()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void winGame() {
+        gameOver = true;
+        for (int r = 0; r < grid.getRows(); r++) {
+            for (int c = 0; c < grid.getCols(); c++) {
+                buttons[r][c].setEnabled(false);
+                Tile tile = main[r][c];
+                if (tile.isMine()) {
+                    buttons[r][c].setText("🚩");
+                }
+            }
+        }
+        JOptionPane.showMessageDialog(frame, "Congratulations! You win!");
     }
 
     private void gameOver() {
