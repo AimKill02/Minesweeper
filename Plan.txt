@@ -1,0 +1,7 @@
+- Customizable Diffculty
+- Restart Button
+- Remaining mine count
+- Timer
+
+Change needed:
+- Colored background on flagged tile when winning
