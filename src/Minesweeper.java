@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Minesweeper {
     private JFrame frame;
@@ -63,28 +65,39 @@ public class Minesweeper {
     }
 
     private void reveal(int r, int c) {
-        Tile tile = main[r][c];
-        JButton btn = buttons[r][c];
+        if (main[r][c].isRevealed()) return;
 
-        if (tile.isRevealed()){
-            return;
-        }
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{r, c});
 
-        tile.setRevealed(true);
-        btn.setEnabled(false);
+        while (!queue.isEmpty()) {
+            int[] pos = queue.poll();
+            int row = pos[0], col = pos[1];
+            Tile tile = main[row][col];
+            JButton btn = buttons[row][col];
 
-        if (tile.isMine()) {
-            btn.setText("💣");
-            gameOver();
-        } else if (tile.getAdjacentMines() > 0) {
-            btn.setText(Integer.toString(tile.getAdjacentMines()));
-        } else {
-            btn.setText("");
-            for (int dr = -1; dr <= 1; dr++) {
-                for (int dc = -1; dc <= 1; dc++) {
-                    int nr = r + dr, nc = c + dc;
-                    if ((dr != 0 || dc != 0) && nr >= 0 && nr < grid.getRows() && nc >= 0 && nc < grid.getCols()) {
-                        reveal(nr, nc);
+            if (tile.isRevealed()) continue;
+
+            tile.setRevealed(true);
+            btn.setEnabled(false);
+
+            if (tile.isMine()) {
+                btn.setText("💣");
+                gameOver();
+                return;
+            } else if (tile.getAdjacentMines() > 0) {
+                btn.setText(Integer.toString(tile.getAdjacentMines()));
+            } else {
+                btn.setText("");
+                for (int dr = -1; dr <= 1; dr++) {
+                    for (int dc = -1; dc <= 1; dc++) {
+                        int nr = row + dr, nc = col + dc;
+                        if ((dr != 0 || dc != 0) &&
+                            nr >= 0 && nr < grid.getRows() &&
+                            nc >= 0 && nc < grid.getCols() &&
+                            !main[nr][nc].isRevealed()) {
+                            queue.add(new int[]{nr, nc});
+                        }
                     }
                 }
             }
