@@ -6,9 +6,10 @@ import java.util.Queue;
 public class Minesweeper {
     private JFrame frame;
     private Mine grid = new Mine();
-
+    private boolean firstClick = true;
     JButton[][] buttons;
     private Tile[][] main = grid.getGrid();
+    private boolean gameOver = false;
 
 
     public Minesweeper() {
@@ -16,10 +17,8 @@ public class Minesweeper {
         grid.setCols(10);
         grid.setTotalMines(10);
         grid.generateGrid();
-        grid.generateMines();
-        buttons = new JButton[grid.getRows()][grid.getCols()];
         main = grid.getGrid();
-        calculateNeighbors();
+        buttons = new JButton[grid.getRows()][grid.getCols()];
         createAndShowGUI(); 
         }
 
@@ -56,7 +55,36 @@ public class Minesweeper {
                 int finalR = r;
                 int finalC = c;
 
-                btn.addActionListener(e -> reveal(finalR, finalC));
+                btn.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        if (gameOver) return;
+                        if (SwingUtilities.isRightMouseButton(e)) {
+                            flag(finalR, finalC);
+                        } else if (SwingUtilities.isLeftMouseButton(e)) {
+                            Tile tile = main[finalR][finalC];
+                            if (tile.isRevealed() && tile.getAdjacentMines() > 0) {
+                                // Chording: if number of adjacent flags equals the number, reveal all adjacent
+                                if (countAdjacentFlags(finalR, finalC) == tile.getAdjacentMines()) {
+                                    for (int dr = -1; dr <= 1; dr++) {
+                                        for (int dc = -1; dc <= 1; dc++) {
+                                            int nr = finalR + dr, nc = finalC + dc;
+                                            if ((dr != 0 || dc != 0) &&
+                                                nr >= 0 && nr < grid.getRows() &&
+                                                nc >= 0 && nc < grid.getCols() &&
+                                                !main[nr][nc].isFlagged() &&
+                                                !main[nr][nc].isRevealed()) {
+                                                reveal(nr, nc);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                reveal(finalR, finalC);
+                            }
+                        }
+                    }
+                });
                 frame.add(btn);
             }
         }
@@ -64,9 +92,45 @@ public class Minesweeper {
         frame.setVisible(true);
     }
 
-    private void reveal(int r, int c) {
-        if (main[r][c].isRevealed()) return;
+    private int countAdjacentFlags(int r, int c) {
+        int count = 0;
+        for (int dr = -1; dr <= 1; dr++) {
+            for (int dc = -1; dc <= 1; dc++) {
+                int nr = r + dr, nc = c + dc;
+                if ((dr != 0 || dc != 0) &&
+                    nr >= 0 && nr < grid.getRows() &&
+                    nc >= 0 && nc < grid.getCols() &&
+                    main[nr][nc].isFlagged()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
+    private void flag(int r, int c) {
+        if (gameOver) return;
+        Tile tile = main[r][c];
+        JButton btn = buttons[r][c];
 
+        if (tile.isRevealed()) return;
+
+        if (tile.isFlagged()) {
+            tile.setFlagged(false);
+            btn.setText("");
+        } else {
+            tile.setFlagged(true);
+            btn.setText("🚩");
+        }
+    }
+
+    private void reveal(int r, int c) {
+        if (main[r][c].isRevealed() || main[r][c].isFlagged()) return;
+        if (firstClick) {
+            grid.generateMines(r, c);
+            calculateNeighbors();
+            firstClick = false;
+            }
         Queue<int[]> queue = new LinkedList<>();
         queue.add(new int[]{r, c});
 
@@ -105,12 +169,21 @@ public class Minesweeper {
     }
 
     private void gameOver() {
+        gameOver = true;
         for (int r = 0; r < grid.getRows(); r++) {
             for (int c = 0; c < grid.getCols(); c++) {
-                if (main[r][c].isMine()) {
-                    buttons[r][c].setText("💣");
+                Tile tile = main[r][c];
+                JButton btn = buttons[r][c];
+                if (tile.isMine()) {
+                    btn.setText("💣");
                 }
-                buttons[r][c].setEnabled(false);
+                if (tile.isFlagged() && !tile.isMine()) {
+                    btn.setText("❌");
+                    btn.setBackground(Color.RED);
+                    btn.setOpaque(true);
+                    btn.setBorderPainted(false);
+                }
+                btn.setEnabled(false);
             }
         }
         JOptionPane.showMessageDialog(frame, "Game Over!");

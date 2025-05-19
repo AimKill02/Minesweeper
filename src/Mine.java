@@ -10,19 +10,20 @@ public class Mine extends GridTable {
         return totalMines;
     }
 
-    public synchronized void generateMines() {
+    public synchronized void generateMines(int safeRow, int safeCol) {
     Random random = new Random();
     int minesPlaced = 0;
+
     // Time Complexity (Best Case): O(TotalMines)
     // Time Complexity (Worst Case): O(Rows * Cols)
     // Space Complexity: O(1)
+
     while (minesPlaced < totalMines) {
         int row = random.nextInt(getRows());
         int col = random.nextInt(getCols());
-        if (!getGrid()[row][col].isMine()) {
+        if ((row == safeRow && col == safeCol) || getGrid()[row][col].isMine()) continue;
             getGrid()[row][col].setMine(true);
             minesPlaced++;
-            }
         }
     }
 }
