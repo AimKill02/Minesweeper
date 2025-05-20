@@ -15,6 +15,7 @@ public class ComplexityChecker {
         Runtime runtime = Runtime.getRuntime();
         runtime.gc();
         long memBefore = runtime.totalMemory() - runtime.freeMemory();
+        int[][] memArr = new int[rows][cols];
         runtime.gc();
         long memAfter = runtime.totalMemory() - runtime.freeMemory();
         System.out.println("Approximate memory used for array: " + (memAfter - memBefore) / 1024.0 + " KB");
