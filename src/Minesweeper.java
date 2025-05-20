@@ -227,7 +227,12 @@ public class Minesweeper {
             for (int c = 0; c < grid.getCols(); c++) {
                 buttons[r][c].setEnabled(false);
                 Tile tile = main[r][c];
-                if (tile.isMine()) buttons[r][c].setText("🚩");
+                if (tile.isMine()) {
+                    buttons[r][c].setText("🚩");
+                    buttons[r][c].setBackground(Color.GREEN);
+                    buttons[r][c].setOpaque(true);
+                    buttons[r][c].setBorderPainted(false);
+                }
             }
         }
         JOptionPane.showMessageDialog(frame, "Congratulations! You win!\nTime: " + seconds + "s");
@@ -256,6 +261,7 @@ public class Minesweeper {
     private void restartGame() {
         if (timer != null) timer.stop();
         frame.dispose();
+        firstClick = true;
         SwingUtilities.invokeLater(Minesweeper::new);
     }
 
