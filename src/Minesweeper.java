@@ -22,8 +22,8 @@ public class Minesweeper {
         if (choice == 1) { rows = 16; cols = 16; mines = 40; }
         else if (choice == 2) { rows = 16; cols = 30; mines = 99; }
         else if (choice == 3) {
-            String rowStr = JOptionPane.showInputDialog("Rows:", "10");
-            String colStr = JOptionPane.showInputDialog("Columns:", "10");
+            String rowStr = JOptionPane.showInputDialog("Rows: \nLimit: 30", "10");
+            String colStr = JOptionPane.showInputDialog("Columns \nLimit: 30:", "10");
             String mineStr = JOptionPane.showInputDialog("Mines:", "10");
             try {
                 rows = Math.max(1, Integer.parseInt(rowStr));
@@ -32,6 +32,19 @@ public class Minesweeper {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Invalid input. Using Beginner settings.");
                 rows = 9; cols = 9; mines = 10;
+            }
+            if (mines >= rows * cols) {
+                JOptionPane.showMessageDialog(null, "Too many mines! Using Beginner settings.");
+                rows = 9; cols = 9; mines = 10;
+            } else if (rows > 30 || cols > 30) {
+                JOptionPane.showMessageDialog(null, "grid too large! Using Beginner settings.");
+                rows = 9; cols = 9; mines = 10;
+            }
+            double mineDensity = ((double) mines / (rows * cols)) * 100;
+            if (mineDensity  > 66.67) {
+                JOptionPane.showMessageDialog(null, "Mine density:" + mineDensity + "%  ⚠️");
+            } else {
+                JOptionPane.showMessageDialog(null, "Mine density:" + mineDensity + "%");
             }
         }
         grid.setRows(rows);
